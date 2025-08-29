@@ -9,6 +9,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
+    "cdk:deploy": "cdk deploy",
     "format": "prettier --check ./{bin,lib}",
     "format:fix": "prettier --write ./{bin,lib}",
     "lint": "eslint",
