@@ -10,4 +10,7 @@ export default defineConfig([
         files: ['lib/**/*.ts', 'bin/*.ts'],
         extends: [cdkPlugin.configs.recommended],
     },
+    {
+        ignores: ['**/dist/', '*.config.mjs'],
+    },
 ]);

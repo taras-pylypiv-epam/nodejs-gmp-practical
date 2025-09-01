@@ -9,9 +9,10 @@
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
+    "build:lambda:booking": "cd ./assets/lambda/BookingHandler && npm run build",
     "cdk:deploy": "cdk deploy",
-    "format": "prettier --check ./{bin,lib}",
-    "format:fix": "prettier --write ./{bin,lib}",
+    "format": "prettier --check ./{bin,lib,assets}/**/*.ts",
+    "format:fix": "prettier --write ./{bin,lib,assets}/**/*.ts",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "prepare": "husky install"
@@ -37,7 +38,7 @@
     "constructs": "^10.0.0"
   },
   "lint-staged": {
-    "*.{js,ts}": [
+    "*.{ts}": [
       "eslint --cache --fix",
       "prettier --write"
     ]
