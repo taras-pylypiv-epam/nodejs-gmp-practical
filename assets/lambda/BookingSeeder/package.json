@@ -1,0 +1,23 @@
+{
+  "name": "booking-seeder",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "build": "esbuild index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js",
+    "postbuild": "cd dist && zip -r index.zip index.js*"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "esbuild": "^0.25.9"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.879.0",
+    "@aws-sdk/lib-dynamodb": "^3.879.0",
+    "@faker-js/faker": "^10.0.0",
+    "moment": "^2.30.1",
+    "uuid": "^12.0.0"
+  }
+}

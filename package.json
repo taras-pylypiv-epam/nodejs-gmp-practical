@@ -5,13 +5,19 @@
     "nodejs-gmp-practical": "bin/MentorBookingStack.js"
   },
   "scripts": {
+    "postinstall": "(cd ./assets/lambda/BookingHandler && npm install); (cd ./assets/lambda/BookingSeeder && npm install);",
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "cdk:deploy": "cdk deploy",
-    "format": "prettier --check ./{bin,lib}",
-    "format:fix": "prettier --write ./{bin,lib}",
+    "cdk:deploy:mentor-booking-storage": "cdk deploy MentorBookingStorage",
+    "cdk:deploy:mentor-booking-api": "cdk deploy MentorBookingAPI",
+    "cdk:deploy:all": "cdk deploy --all",
+    "build:lambda:booking-handler": "cd ./assets/lambda/BookingHandler && npm run build",
+    "build:lambda:booking-seeder": "cd ./assets/lambda/BookingSeeder && npm run build",
+    "build:assets:all": "concurrently 'npm run build:lambda:booking-handler' 'npm run build:lambda:booking-seeder'",
+    "format": "prettier --check ./{bin,lib,assets,utils}/**/*.ts",
+    "format:fix": "prettier --write ./{bin,lib,assets,utils}/**/*.ts",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "prepare": "husky install"
@@ -21,6 +27,7 @@
     "@types/jest": "^29.5.14",
     "@types/node": "22.7.9",
     "aws-cdk": "2.1020.2",
+    "concurrently": "^9.2.1",
     "eslint": "^9.34.0",
     "eslint-cdk-plugin": "^3.3.0",
     "husky": "^9.1.7",
@@ -37,8 +44,8 @@
     "constructs": "^10.0.0"
   },
   "lint-staged": {
-    "*.{js,ts}": [
-      "eslint --cache --fix",
+    "*.{ts}": [
+      "eslint --cache --cache-location node_modules/.cache --fix",
       "prettier --write"
     ]
   }
