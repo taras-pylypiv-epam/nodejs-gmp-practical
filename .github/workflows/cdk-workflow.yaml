@@ -27,5 +27,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-north-1
 
-      - name: Deploy CDK Stack
-        run: npm run cdk:deploy
+      - name: Build all assets (Lambda Functions)
+        run: npm run build:assets:all
+
+      - name: Deploy all CDK Stacks
+        run: npm run cdk:deploy:all

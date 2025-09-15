@@ -3,19 +3,17 @@ import { Construct } from 'constructs';
 import * as apigw from 'aws-cdk-lib/aws-apigateway';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
-import * as path from 'node:path';
+import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 
-const ASSETS_PATH = '/../assets';
+import { buildLambdaPath } from '../utils/lambda';
 
-function buildLambdaPath(lambdaName: string) {
-    return path.join(
-        __dirname,
-        `${ASSETS_PATH}/lambda/${lambdaName}/dist/index.zip`
-    );
+interface APIStackProps extends cdk.StackProps {
+    readonly mentorsTable: dynamodb.ITableV2;
+    readonly timeSlotsTable: dynamodb.ITableV2;
 }
 
-export class MentorBookingStack extends cdk.Stack {
-    constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+export class APIStack extends cdk.Stack {
+    constructor(scope: Construct, id: string, props: APIStackProps) {
         super(scope, id, props);
 
         const studentPool = new cognito.UserPool(this, 'StudentPool', {
@@ -39,11 +37,16 @@ export class MentorBookingStack extends cdk.Stack {
         );
 
         const bookingHandler = new lambda.Function(this, 'BookingHandler', {
-            runtime: lambda.Runtime.NODEJS_20_X,
-            memorySize: 1024,
+            runtime: lambda.Runtime.NODEJS_22_X,
+            architecture: lambda.Architecture.ARM_64,
+            memorySize: 256,
             timeout: cdk.Duration.seconds(5),
             handler: 'index.handler',
             code: lambda.Code.fromAsset(buildLambdaPath('BookingHandler')),
+            environment: {
+                MENTORS_TABLE: props.mentorsTable.tableName,
+                TIME_SLOTS_TABLE: props.timeSlotsTable.tableName,
+            },
         });
 
         const bookingApi = new apigw.RestApi(this, 'BookingAPI', {
@@ -56,9 +59,20 @@ export class MentorBookingStack extends cdk.Stack {
         );
 
         const mentorsResource = bookingApi.root.addResource('mentors');
+        const mentorTimeSlotsResource = mentorsResource
+            .addResource('{mentorId}')
+            .addResource('timeslots');
+
         mentorsResource.addMethod('GET', bookingIntegration, {
             authorizer: studentAuthorizer,
             authorizationType: apigw.AuthorizationType.COGNITO,
         });
+        mentorTimeSlotsResource.addMethod('GET', bookingIntegration, {
+            authorizer: studentAuthorizer,
+            authorizationType: apigw.AuthorizationType.COGNITO,
+        });
+
+        props.mentorsTable.grantReadWriteData(bookingHandler);
+        props.timeSlotsTable.grantReadWriteData(bookingHandler);
     }
 }
