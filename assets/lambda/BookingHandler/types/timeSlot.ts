@@ -1,15 +1,21 @@
+import type { ServiceResultPromise } from './results';
+
 export interface TimeSlot {
     id: string;
     mentorId: string;
     startTime: string;
     endTime: string;
-    available: boolean;
+    booked: boolean;
 }
 
 export interface ITimeSlotRepository {
     getActiveByMentorId(mentorId: string): Promise<TimeSlot[] | []>;
+    getById(timeSlotId: string): Promise<TimeSlot | null>;
+    updateBooked(timeSlotId: string, booked: boolean): Promise<TimeSlot | null>;
 }
 
 export interface ITimeSlotService {
-    getActiveByMentorId(mentorId: string): Promise<TimeSlot[] | [] | null>;
+    getActiveByMentorId(
+        mentorId: string
+    ): ServiceResultPromise<TimeSlot[] | []>;
 }

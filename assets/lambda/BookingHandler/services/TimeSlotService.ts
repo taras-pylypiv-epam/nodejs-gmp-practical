@@ -15,9 +15,11 @@ export class TimeSlotService implements ITimeSlotService {
     async getActiveByMentorId(mentorId: string) {
         const mentor = await this.mentorRepository.getById(mentorId);
         if (!mentor) {
-            return null;
+            return { error: true, errorMsg: 'Mentor not found' };
         }
 
-        return await this.timeSlotRepository.getActiveByMentorId(mentorId);
+        const result =
+            await this.timeSlotRepository.getActiveByMentorId(mentorId);
+        return { error: false, data: result };
     }
 }

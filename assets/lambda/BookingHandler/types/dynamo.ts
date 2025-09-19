@@ -2,6 +2,11 @@ import type {
     ScanCommandInput,
     ScanCommandOutput,
     GetCommandOutput,
+    PutCommandInput,
+    PutCommandOutput,
+    UpdateCommandInput,
+    UpdateCommandOutput,
+    DeleteCommandOutput,
 } from '@aws-sdk/lib-dynamodb';
 
 export interface IDynamoStore {
@@ -17,4 +22,20 @@ export interface IDynamoStore {
         pkName: string,
         pk: string
     ): Promise<GetCommandOutput>;
+    createItem(
+        tableName: string,
+        item: PutCommandInput['Item']
+    ): Promise<PutCommandOutput>;
+    updateItem(
+        tableName: string,
+        pkName: string,
+        pk: string,
+        updateExpression: UpdateCommandInput['UpdateExpression'],
+        updateValues: UpdateCommandInput['ExpressionAttributeValues']
+    ): Promise<UpdateCommandOutput>;
+    deleteItem(
+        tableName: string,
+        pkName: string,
+        pk: string
+    ): Promise<DeleteCommandOutput>;
 }

@@ -10,6 +10,7 @@ import { buildLambdaPath } from '../utils/lambda';
 interface APIStackProps extends cdk.StackProps {
     readonly mentorsTable: dynamodb.ITableV2;
     readonly timeSlotsTable: dynamodb.ITableV2;
+    readonly bookingsTable: dynamodb.ITableV2;
 }
 
 export class APIStack extends cdk.Stack {
@@ -35,6 +36,10 @@ export class APIStack extends cdk.Stack {
                 authorizerName: 'StudentAuthorizer',
             }
         );
+        const studentAuthorizerOption = {
+            authorizer: studentAuthorizer,
+            authorizationType: apigw.AuthorizationType.COGNITO,
+        };
 
         const bookingHandler = new lambda.Function(this, 'BookingHandler', {
             runtime: lambda.Runtime.NODEJS_22_X,
@@ -46,6 +51,7 @@ export class APIStack extends cdk.Stack {
             environment: {
                 MENTORS_TABLE: props.mentorsTable.tableName,
                 TIME_SLOTS_TABLE: props.timeSlotsTable.tableName,
+                BOOKINGS_TABLE: props.bookingsTable.tableName,
             },
         });
 
@@ -62,17 +68,32 @@ export class APIStack extends cdk.Stack {
         const mentorTimeSlotsResource = mentorsResource
             .addResource('{mentorId}')
             .addResource('timeslots');
+        const bookingsResource = bookingApi.root.addResource('bookings');
+        const bookingResource = bookingsResource.addResource('{bookingId}');
 
-        mentorsResource.addMethod('GET', bookingIntegration, {
-            authorizer: studentAuthorizer,
-            authorizationType: apigw.AuthorizationType.COGNITO,
-        });
-        mentorTimeSlotsResource.addMethod('GET', bookingIntegration, {
-            authorizer: studentAuthorizer,
-            authorizationType: apigw.AuthorizationType.COGNITO,
-        });
+        mentorsResource.addMethod(
+            'GET',
+            bookingIntegration,
+            studentAuthorizerOption
+        );
+        mentorTimeSlotsResource.addMethod(
+            'GET',
+            bookingIntegration,
+            studentAuthorizerOption
+        );
+        bookingsResource.addMethod(
+            'POST',
+            bookingIntegration,
+            studentAuthorizerOption
+        );
+        bookingResource.addMethod(
+            'DELETE',
+            bookingIntegration,
+            studentAuthorizerOption
+        );
 
         props.mentorsTable.grantReadWriteData(bookingHandler);
         props.timeSlotsTable.grantReadWriteData(bookingHandler);
+        props.bookingsTable.grantReadWriteData(bookingHandler);
     }
 }

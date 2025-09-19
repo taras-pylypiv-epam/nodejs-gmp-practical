@@ -1,6 +1,6 @@
 import { inject, injectable } from 'tsyringe';
 import type { IMentorService, IMentorRepository } from '../types/mentor';
-import type { GetAllQueryParams } from '../schemas/mentor';
+import type { GetMentorsQueryParams } from '../schemas/mentor';
 
 @injectable()
 export class MentorService implements IMentorService {
@@ -10,10 +10,12 @@ export class MentorService implements IMentorService {
     ) {}
 
     async getAll() {
-        return await this.mentorRepository.getAll();
+        const result = await this.mentorRepository.getAll();
+        return { error: false, data: result };
     }
 
-    async getAllWithFilter(params: GetAllQueryParams) {
-        return await this.mentorRepository.getAllWithFilter(params);
+    async getAllWithFilter(params: GetMentorsQueryParams) {
+        const result = await this.mentorRepository.getAllWithFilter(params);
+        return { error: false, data: result };
     }
 }

@@ -1,6 +1,6 @@
 import * as z from 'zod';
 
-export const GetAllQueryParamsSchema = z.object({
+export const GetMentorsQueryParamsSchema = z.object({
     experience: z.preprocess(
         (val) => (typeof val === 'string' ? Number.parseInt(val) : val),
         z.number().int().optional()
@@ -11,4 +11,4 @@ export const GetAllQueryParamsSchema = z.object({
     ),
 });
 
-export type GetAllQueryParams = z.infer<typeof GetAllQueryParamsSchema>;
+export type GetMentorsQueryParams = z.infer<typeof GetMentorsQueryParamsSchema>;
