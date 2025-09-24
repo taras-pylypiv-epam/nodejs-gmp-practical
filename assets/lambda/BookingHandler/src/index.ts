@@ -47,6 +47,16 @@ export async function handler(
                 ));
                 break;
             }
+            case event.path === '/bookings' && event.httpMethod === 'GET': {
+                const controller =
+                    diContainer.resolve<IBookingController>(
+                        'IBookingController'
+                    );
+                ({ body, statusCode } = await controller.getAll(
+                    event.queryStringParameters
+                ));
+                break;
+            }
             case event.path === '/bookings' && event.httpMethod === 'POST': {
                 const controller =
                     diContainer.resolve<IBookingController>(

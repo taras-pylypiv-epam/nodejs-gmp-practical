@@ -82,6 +82,11 @@ export class APIStack extends cdk.Stack {
             studentAuthorizerOption
         );
         bookingsResource.addMethod(
+            'GET',
+            bookingIntegration,
+            studentAuthorizerOption
+        );
+        bookingsResource.addMethod(
             'POST',
             bookingIntegration,
             studentAuthorizerOption

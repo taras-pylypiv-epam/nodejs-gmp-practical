@@ -1,6 +1,9 @@
 import type { APIGatewayEvent } from 'aws-lambda';
 import type { GetMentorsQueryParams } from '../schemas/mentor';
-import type { ServiceResultPromise, ControllerResultPromise } from './results';
+import type {
+    ControllerResponsePromise,
+    ServiceResponsePromise,
+} from './responses';
 import type { TimeSlot } from './timeSlot';
 
 export interface Mentor {
@@ -18,18 +21,18 @@ export interface IMentorRepository {
 }
 
 export interface IMentorService {
-    getAll(): ServiceResultPromise<Mentor[] | []>;
+    getAll(): ServiceResponsePromise<Mentor[] | []>;
     getAllWithFilter(
         params: GetMentorsQueryParams
-    ): ServiceResultPromise<Mentor[] | []>;
+    ): ServiceResponsePromise<Mentor[] | []>;
 }
 
 export interface IMentorController {
     getAll(
         queryParams: APIGatewayEvent['queryStringParameters'] | null
-    ): ControllerResultPromise<Mentor[] | []>;
+    ): ControllerResponsePromise<Mentor[] | []>;
 
     getMentorTimeSlots(
         mentorId: string
-    ): ControllerResultPromise<TimeSlot[] | []>;
+    ): ControllerResponsePromise<TimeSlot[] | []>;
 }

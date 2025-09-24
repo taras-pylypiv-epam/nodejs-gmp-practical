@@ -1,5 +1,8 @@
 import { inject, injectable } from 'tsyringe';
-import { CreateBookingBodySchema } from '../schemas/booking';
+import {
+    CreateBookingBodySchema,
+    GetBookingsQueryParamsSchema,
+} from '../schemas/booking';
 
 import type { APIGatewayEvent } from 'aws-lambda';
 import type { IBookingController, IBookingService } from '../types/booking';
@@ -33,6 +36,28 @@ export class BookingController implements IBookingController {
         }
 
         return { body: result.data, statusCode: 201 };
+    }
+
+    async getAll(queryParams: APIGatewayEvent['queryStringParameters']) {
+        const { data: parsedQueryParams, success } =
+            GetBookingsQueryParamsSchema.safeParse(queryParams ?? {});
+
+        if (!success) {
+            return { body: { message: 'Invalid request' }, statusCode: 400 };
+        }
+
+        const result = Object.keys(parsedQueryParams).length
+            ? await this.bookingService.getAllWithFilter(parsedQueryParams)
+            : await this.bookingService.getAll();
+
+        if (result.error || !result.data) {
+            return {
+                body: { message: result.errorMsg ?? 'Failed to get bookings' },
+                statusCode: result.code ?? 404,
+            };
+        }
+
+        return { body: result.data, statusCode: 200 };
     }
 
     async delete(bookingId: string, studentEmail: string) {

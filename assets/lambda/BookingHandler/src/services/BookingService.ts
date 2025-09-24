@@ -8,7 +8,10 @@ import type {
 } from '../types/booking';
 import type { IMentorRepository } from '../types/mentor';
 import type { ITimeSlotRepository } from '../types/timeSlot';
-import type { CreateBookingBody } from '../schemas/booking';
+import type {
+    CreateBookingBody,
+    GetBookingsQueryParams,
+} from '../schemas/booking';
 
 @injectable()
 export class BookingService implements IBookingService {
@@ -59,7 +62,9 @@ export class BookingService implements IBookingService {
 
         const booking: Booking = {
             id: uuidv4(),
-            ...body,
+            timeSlotId: body.timeSlotId,
+            startTime: timeSlot.startTime,
+            endTime: timeSlot.endTime,
             mentorEmail: mentor.email,
             studentEmail,
         };
@@ -70,6 +75,16 @@ export class BookingService implements IBookingService {
         }
 
         return { error: false, data: booking };
+    }
+
+    async getAll() {
+        const result = await this.bookingRepository.getAll();
+        return { error: false, data: result };
+    }
+
+    async getAllWithFilter(params: GetBookingsQueryParams) {
+        const result = await this.bookingRepository.getAllWithFilter(params);
+        return { error: false, data: result };
     }
 
     async delete(bookingId: string, studentEmail: string) {

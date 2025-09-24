@@ -4,13 +4,17 @@ import type { ITimeSlotRepository, TimeSlot } from '../types/timeSlot';
 
 @injectable()
 export class TimeSlotRepository implements ITimeSlotRepository {
+    private readonly timeSlotsTable: string;
+
     constructor(
         @inject('IDynamoStore')
         private readonly db: IDynamoStore
-    ) {}
+    ) {
+        this.timeSlotsTable = process.env.TIME_SLOTS_TABLE;
+    }
 
     async getActiveByMentorId(mentorId: string) {
-        const timeSlotsTable = process.env.TIME_SLOTS_TABLE;
+        const timeSlotsTable = this.timeSlotsTable;
         const filters = [
             'mentorId = :mentorId',
             'booked = :booked',
@@ -33,7 +37,7 @@ export class TimeSlotRepository implements ITimeSlotRepository {
 
     async getById(timeSlotId: string) {
         const result = await this.db.getItem(
-            process.env.TIME_SLOTS_TABLE,
+            this.timeSlotsTable,
             'id',
             timeSlotId
         );
@@ -42,7 +46,7 @@ export class TimeSlotRepository implements ITimeSlotRepository {
 
     async updateBooked(timeSlotId: string, booked: boolean) {
         const result = await this.db.updateItem(
-            process.env.TIME_SLOTS_TABLE,
+            this.timeSlotsTable,
             'id',
             timeSlotId,
             'SET booked = :booked',

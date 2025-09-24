@@ -1,4 +1,4 @@
-import type { ServiceResultPromise } from './results';
+import type { ServiceResponsePromise } from './responses';
 
 export interface TimeSlot {
     id: string;
@@ -17,5 +17,5 @@ export interface ITimeSlotRepository {
 export interface ITimeSlotService {
     getActiveByMentorId(
         mentorId: string
-    ): ServiceResultPromise<TimeSlot[] | []>;
+    ): ServiceResponsePromise<TimeSlot[] | []>;
 }

@@ -10,7 +10,7 @@ export const CreateBookingBodySchema = z.object({
     timeSlotId: z.uuidv4(),
 });
 export const GetBookingsQueryParamsSchema = z.object({
-    date: z.enum(BookingDateQueryParam),
+    date: z.enum(BookingDateQueryParam).optional(),
 });
 
 export type CreateBookingBody = z.infer<typeof CreateBookingBodySchema>;
