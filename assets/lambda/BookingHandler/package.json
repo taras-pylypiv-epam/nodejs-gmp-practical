@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "prebuild": "rm -rf dist",
-    "build": "esbuild index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js",
+    "build": "esbuild src/index.ts --bundle --minify --sourcemap --platform=node --target=es2020 --outfile=dist/index.js",
     "postbuild": "cd dist && zip -r index.zip index.js*"
   },
   "author": "",
@@ -12,6 +12,7 @@
   "description": "",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.152",
+    "@types/node": "^24.5.2",
     "@types/reflect-metadata": "^0.0.5",
     "esbuild": "^0.25.9"
   },
