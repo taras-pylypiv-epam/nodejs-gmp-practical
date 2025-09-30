@@ -10,6 +10,7 @@ import type {
 
 export interface Booking {
     id: string;
+    mentorId: string;
     timeSlotId: string;
     startTime: string;
     endTime: string;

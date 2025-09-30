@@ -4,7 +4,7 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as customResources from 'aws-cdk-lib/custom-resources';
 
-import { buildLambdaPath } from '../utils/lambda';
+import { buildLambdaPath } from '../utils/path';
 
 export class StorageStack extends cdk.Stack {
     public readonly mentorsTable: dynamodb.ITableV2;

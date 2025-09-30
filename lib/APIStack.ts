@@ -4,13 +4,17 @@ import * as apigw from 'aws-cdk-lib/aws-apigateway';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
 
-import { buildLambdaPath } from '../utils/lambda';
+import { buildLambdaPath } from '../utils/path';
 
 interface APIStackProps extends cdk.StackProps {
     readonly mentorsTable: dynamodb.ITableV2;
     readonly timeSlotsTable: dynamodb.ITableV2;
     readonly bookingsTable: dynamodb.ITableV2;
+    readonly notificationsQueue: sqs.IQueue;
+    readonly mentorBookingTemplate: string;
+    readonly studentBookingTemplate: string;
 }
 
 export class APIStack extends cdk.Stack {
@@ -45,13 +49,15 @@ export class APIStack extends cdk.Stack {
             runtime: lambda.Runtime.NODEJS_22_X,
             architecture: lambda.Architecture.ARM_64,
             memorySize: 256,
-            timeout: cdk.Duration.seconds(5),
             handler: 'index.handler',
             code: lambda.Code.fromAsset(buildLambdaPath('BookingHandler')),
             environment: {
                 MENTORS_TABLE: props.mentorsTable.tableName,
                 TIME_SLOTS_TABLE: props.timeSlotsTable.tableName,
                 BOOKINGS_TABLE: props.bookingsTable.tableName,
+                NOTIFICATIONS_QUEUE: props.notificationsQueue.queueUrl,
+                MENTOR_BOOKING_TEMPLATE: props.mentorBookingTemplate,
+                STUDENT_BOOKING_TEMPLATE: props.studentBookingTemplate,
             },
         });
 
@@ -71,26 +77,31 @@ export class APIStack extends cdk.Stack {
         const bookingsResource = bookingApi.root.addResource('bookings');
         const bookingResource = bookingsResource.addResource('{bookingId}');
 
+        // GET /mentors
         mentorsResource.addMethod(
             'GET',
             bookingIntegration,
             studentAuthorizerOption
         );
+        // GET /mentors/{mentorId}/timeslots
         mentorTimeSlotsResource.addMethod(
             'GET',
             bookingIntegration,
             studentAuthorizerOption
         );
+        // GET /bookings
         bookingsResource.addMethod(
             'GET',
             bookingIntegration,
             studentAuthorizerOption
         );
+        // POST /bookings
         bookingsResource.addMethod(
             'POST',
             bookingIntegration,
             studentAuthorizerOption
         );
+        // DELETE /bookings/{bookingId}
         bookingResource.addMethod(
             'DELETE',
             bookingIntegration,
@@ -100,5 +111,7 @@ export class APIStack extends cdk.Stack {
         props.mentorsTable.grantReadWriteData(bookingHandler);
         props.timeSlotsTable.grantReadWriteData(bookingHandler);
         props.bookingsTable.grantReadWriteData(bookingHandler);
+
+        props.notificationsQueue.grantSendMessages(bookingHandler);
     }
 }
