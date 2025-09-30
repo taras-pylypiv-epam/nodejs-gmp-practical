@@ -1,23 +1,27 @@
 import { inject, injectable } from 'tsyringe';
-import { IDynamoStore } from '../types/dynamo';
 
 import type { ScanCommandInput } from '@aws-sdk/lib-dynamodb';
+import type { IDynamoStore } from '../types/dynamo';
 import type { IMentorRepository, Mentor } from '../types/mentor';
-import type { GetAllQueryParams } from '../schemas/mentor';
+import type { GetMentorsQueryParams } from '../schemas/mentor';
 
 @injectable()
 export class MentorRepository implements IMentorRepository {
+    private readonly mentorsTable: string;
+
     constructor(
         @inject('IDynamoStore')
         private readonly db: IDynamoStore
-    ) {}
+    ) {
+        this.mentorsTable = process.env.MENTORS_TABLE;
+    }
 
     async getAll() {
-        const result = await this.db.getAll(process.env.MENTORS_TABLE!);
+        const result = await this.db.getAll(this.mentorsTable);
         return (result.Items as Mentor[]) ?? [];
     }
 
-    async getAllWithFilter(params: GetAllQueryParams) {
+    async getAllWithFilter(params: GetMentorsQueryParams) {
         const filter: string[] = [];
         const filterValues: ScanCommandInput['ExpressionAttributeValues'] = {};
 
@@ -33,7 +37,7 @@ export class MentorRepository implements IMentorRepository {
         }
 
         const result = await this.db.getItemsWithFilter(
-            process.env.MENTORS_TABLE!,
+            this.mentorsTable,
             filter.join(' AND '),
             filterValues
         );
@@ -41,11 +45,7 @@ export class MentorRepository implements IMentorRepository {
     }
 
     async getById(mentorId: string) {
-        const result = await this.db.getItem(
-            process.env.MENTORS_TABLE!,
-            'id',
-            mentorId
-        );
+        const result = await this.db.getItem(this.mentorsTable, 'id', mentorId);
         return (result.Item as Mentor) ?? null;
     }
 }

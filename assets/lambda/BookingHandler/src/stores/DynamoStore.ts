@@ -1,12 +1,23 @@
-import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBClient, ReturnValue } from '@aws-sdk/client-dynamodb';
 import {
     DynamoDBDocumentClient,
     ScanCommand,
+    GetCommand,
+    PutCommand,
+    UpdateCommand,
+    DeleteCommand,
+} from '@aws-sdk/lib-dynamodb';
+import type {
     ScanCommandInput,
     ScanCommandOutput,
-    GetCommand,
     GetCommandOutput,
+    PutCommandInput,
+    PutCommandOutput,
+    UpdateCommandInput,
+    UpdateCommandOutput,
+    DeleteCommandOutput,
 } from '@aws-sdk/lib-dynamodb';
+
 import type { IDynamoStore } from '../types/dynamo';
 
 export class DynamoStore implements IDynamoStore {
@@ -66,6 +77,71 @@ export class DynamoStore implements IDynamoStore {
     ): Promise<GetCommandOutput> {
         try {
             const command = new GetCommand({
+                TableName: tableName,
+                Key: {
+                    [pkName]: pk,
+                },
+            });
+            const result = await this._dynamoClient.send(command);
+
+            return result;
+        } catch (e) {
+            console.log(e);
+            throw e;
+        }
+    }
+
+    async createItem(
+        tableName: string,
+        item: PutCommandInput['Item']
+    ): Promise<PutCommandOutput> {
+        try {
+            const command = new PutCommand({
+                TableName: tableName,
+                Item: item,
+            });
+            const result = await this._dynamoClient.send(command);
+
+            return result;
+        } catch (e) {
+            console.log(e);
+            throw e;
+        }
+    }
+
+    async updateItem(
+        tableName: string,
+        pkName: string,
+        pk: string,
+        updateExpression: UpdateCommandInput['UpdateExpression'],
+        updateValues: UpdateCommandInput['ExpressionAttributeValues']
+    ): Promise<UpdateCommandOutput> {
+        try {
+            const command = new UpdateCommand({
+                TableName: tableName,
+                Key: {
+                    [pkName]: pk,
+                },
+                UpdateExpression: updateExpression,
+                ExpressionAttributeValues: updateValues,
+                ReturnValues: ReturnValue.ALL_NEW,
+            });
+            const result = await this._dynamoClient.send(command);
+
+            return result;
+        } catch (e) {
+            console.log(e);
+            throw e;
+        }
+    }
+
+    async deleteItem(
+        tableName: string,
+        pkName: string,
+        pk: string
+    ): Promise<DeleteCommandOutput> {
+        try {
+            const command = new DeleteCommand({
                 TableName: tableName,
                 Key: {
                     [pkName]: pk,

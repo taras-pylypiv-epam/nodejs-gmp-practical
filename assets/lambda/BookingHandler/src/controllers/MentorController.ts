@@ -1,5 +1,5 @@
 import { inject, injectable } from 'tsyringe';
-import { GetAllQueryParamsSchema } from '../schemas/mentor';
+import { GetMentorsQueryParamsSchema } from '../schemas/mentor';
 
 import type { APIGatewayEvent } from 'aws-lambda';
 import type { IMentorController, IMentorService } from '../types/mentor';
@@ -17,30 +17,38 @@ export class MentorController implements IMentorController {
 
     async getAll(queryParams: APIGatewayEvent['queryStringParameters']) {
         const { data: parsedQueryParams, success } =
-            GetAllQueryParamsSchema.safeParse(queryParams ?? {});
+            GetMentorsQueryParamsSchema.safeParse(queryParams ?? {});
 
         if (!success) {
             return { body: { message: 'Invalid request' }, statusCode: 400 };
         }
 
-        let result;
+        const result = Object.keys(parsedQueryParams).length
+            ? await this.mentorService.getAllWithFilter(parsedQueryParams)
+            : await this.mentorService.getAll();
 
-        if (Object.keys(parsedQueryParams).length) {
-            result =
-                await this.mentorService.getAllWithFilter(parsedQueryParams);
-        } else {
-            result = await this.mentorService.getAll();
+        if (result.error || !result.data) {
+            return {
+                body: { message: result.errorMsg ?? 'Failed to get mentors' },
+                statusCode: 404,
+            };
         }
 
-        return { body: result, statusCode: 200 };
+        return { body: result.data, statusCode: 200 };
     }
 
     async getMentorTimeSlots(mentorId: string) {
         const result = await this.timeSlotService.getActiveByMentorId(mentorId);
-        if (!result) {
-            return { body: { message: 'Mentor not found' }, statusCode: 404 };
+        if (result.error || !result.data) {
+            return {
+                body: {
+                    message:
+                        result.errorMsg ?? 'Failed to get mentor time slots',
+                },
+                statusCode: 404,
+            };
         }
 
-        return { body: result, statusCode: 200 };
+        return { body: result.data, statusCode: 200 };
     }
 }

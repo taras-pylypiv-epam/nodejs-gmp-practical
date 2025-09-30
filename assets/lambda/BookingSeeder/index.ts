@@ -110,7 +110,7 @@ async function batchWriteItems(table: string, items: Mentor[] | TimeSlot[]) {
 }
 
 export async function handler() {
-    if (!process.env.MENTORS_TABLE && !process.env.TIME_SLOTS_TABLE) {
+    if (!process.env.MENTORS_TABLE || !process.env.TIME_SLOTS_TABLE) {
         throw new Error(
             'Missing required environment variables: MENTORS_TABLE, TIME_SLOTS_TABLE'
         );
@@ -122,6 +122,6 @@ export async function handler() {
         return slots.concat(mentorTimeSlots);
     }, []);
 
-    await batchWriteItems(process.env.MENTORS_TABLE!, mentors);
-    await batchWriteItems(process.env.TIME_SLOTS_TABLE!, timeSlots);
+    await batchWriteItems(process.env.MENTORS_TABLE, mentors);
+    await batchWriteItems(process.env.TIME_SLOTS_TABLE, timeSlots);
 }

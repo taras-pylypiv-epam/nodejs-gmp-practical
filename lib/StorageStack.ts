@@ -4,11 +4,12 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as customResources from 'aws-cdk-lib/custom-resources';
 
-import { buildLambdaPath } from '../utils/lambda';
+import { buildLambdaPath } from '../utils/path';
 
 export class StorageStack extends cdk.Stack {
     public readonly mentorsTable: dynamodb.ITableV2;
     public readonly timeSlotsTable: dynamodb.ITableV2;
+    public readonly bookingsTable: dynamodb.ITableV2;
 
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
@@ -21,6 +22,11 @@ export class StorageStack extends cdk.Stack {
         const timeSlotsTable = new dynamodb.TableV2(this, 'TimeSlotsTable', {
             partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
             tableName: 'TimeSlots',
+            billing: dynamodb.Billing.onDemand(),
+        });
+        const bookingsTable = new dynamodb.TableV2(this, 'BookingsTable', {
+            partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },
+            tableName: 'Bookings',
             billing: dynamodb.Billing.onDemand(),
         });
 
@@ -68,5 +74,6 @@ export class StorageStack extends cdk.Stack {
 
         this.mentorsTable = mentorsTable;
         this.timeSlotsTable = timeSlotsTable;
+        this.bookingsTable = bookingsTable;
     }
 }

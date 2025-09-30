@@ -1,5 +1,5 @@
 {
-  "name": "booking-seeder",
+  "name": "notifications-handler",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -11,14 +11,12 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.152",
     "@types/node": "^24.5.2",
     "esbuild": "^0.25.9"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.879.0",
-    "@aws-sdk/lib-dynamodb": "^3.879.0",
-    "@faker-js/faker": "^10.0.0",
-    "moment": "^2.30.1",
-    "uuid": "^12.0.0"
+    "@aws-sdk/client-sesv2": "^3.896.0",
+    "zod": "^4.1.11"
   }
 }
