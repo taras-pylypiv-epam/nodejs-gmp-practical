@@ -5,7 +5,6 @@
     "nodejs-gmp-practical": "bin/MentorBookingStack.js"
   },
   "scripts": {
-    "postinstall": "(cd ./assets/lambda/BookingHandler && npm ci); (cd ./assets/lambda/BookingSeeder && npm ci); (cd ./assets/lambda/NotificationsHandler && npm ci);",
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
