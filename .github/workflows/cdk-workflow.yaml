@@ -31,12 +31,18 @@ jobs:
         run: |
           echo "NOTIFICATIONS_EMAIL=${{ secrets.NOTIFICATIONS_EMAIL }}" >> .env
 
-      - name: Install dependencies (Lambda Functions)
+      - name: Install BookingHandler dependencies
+        working-directory: ./assets/lambda/BookingHandler
         run: |
-          ls -l
-          cd assets/lambda/BookingHandler && npm ci
-          cd assets/lambda/BookingSeeder && npm ci
-          cd assets/lambda/NotificationsHandler && npm ci
+          npm ci
+      - name: Install BookingSeeder dependencies
+        working-directory: ./assets/lambda/BookingSeeder
+        run: |
+          npm ci
+      - name: Install NotificationsHandler dependencies
+        working-directory: ./assets/lambda/NotificationsHandler
+        run: |
+          npm ci
 
       - name: Build all assets (Lambda Functions)
         run: npm run build:assets:all
