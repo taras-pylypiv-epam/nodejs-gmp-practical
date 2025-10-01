@@ -33,6 +33,7 @@ jobs:
 
       - name: Install dependencies (Lambda Functions)
         run: |
+          ls -l
           cd assets/lambda/BookingHandler && npm ci
           cd assets/lambda/BookingSeeder && npm ci
           cd assets/lambda/NotificationsHandler && npm ci
