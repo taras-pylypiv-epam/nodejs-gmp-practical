@@ -33,9 +33,9 @@ jobs:
 
       - name: Install dependencies (Lambda Functions)
         run: |
-          cd ./assets/lambda/BookingHandler && npm ci
-          cd ./assets/lambda/BookingSeeder && npm ci
-          cd ./assets/lambda/NotificationsHandler && npm ci
+          cd assets/lambda/BookingHandler && npm ci
+          cd assets/lambda/BookingSeeder && npm ci
+          cd assets/lambda/NotificationsHandler && npm ci
 
       - name: Build all assets (Lambda Functions)
         run: npm run build:assets:all
