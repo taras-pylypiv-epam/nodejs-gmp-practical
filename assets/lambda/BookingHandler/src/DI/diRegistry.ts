@@ -2,6 +2,7 @@ import 'reflect-metadata';
 import { container } from 'tsyringe';
 import { DynamoStore } from '../stores/DynamoStore';
 import { SQS } from '../clients/SQSClient';
+import { S3Store } from '../stores/S3Store';
 import { NotificationService } from '../services/NotificationService';
 import { MentorRepository } from '../repositories/MentorRepository';
 import { MentorService } from '../services/MentorService';
@@ -14,6 +15,7 @@ import { BookingController } from '../controllers/BookingController';
 
 container.registerSingleton('IDynamoStore', DynamoStore);
 container.registerSingleton('ISQSClient', SQS);
+container.registerSingleton('IS3Store', S3Store);
 
 container.register('INotificationService', NotificationService);
 

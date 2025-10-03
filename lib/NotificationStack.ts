@@ -3,7 +3,7 @@ import * as customResources from 'aws-cdk-lib/custom-resources';
 import * as ses from 'aws-cdk-lib/aws-ses';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as eventSources from 'aws-cdk-lib/aws-lambda-event-sources';
+import * as lambdaEvents from 'aws-cdk-lib/aws-lambda-event-sources';
 import * as iam from 'aws-cdk-lib/aws-iam';
 
 import { Construct } from 'constructs';
@@ -134,7 +134,7 @@ export class NotificationStack extends cdk.Stack {
         );
 
         notificationsHandler.addEventSource(
-            new eventSources.SqsEventSource(notificationsQueue, {
+            new lambdaEvents.SqsEventSource(notificationsQueue, {
                 batchSize: 5,
                 maxBatchingWindow: cdk.Duration.seconds(5),
                 reportBatchItemFailures: true,

@@ -12,14 +12,18 @@
   "description": "",
   "devDependencies": {
     "@types/aws-lambda": "^8.10.152",
+    "@types/busboy": "^1.5.4",
     "@types/node": "^24.5.2",
     "@types/reflect-metadata": "^0.0.5",
     "esbuild": "^0.25.9"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.879.0",
+    "@aws-sdk/client-s3": "^3.901.0",
     "@aws-sdk/client-sqs": "^3.896.0",
     "@aws-sdk/lib-dynamodb": "^3.879.0",
+    "@aws-sdk/lib-storage": "^3.901.0",
+    "busboy": "^1.6.0",
     "reflect-metadata": "^0.2.2",
     "tsyringe": "^4.10.0",
     "uuid": "^13.0.0",

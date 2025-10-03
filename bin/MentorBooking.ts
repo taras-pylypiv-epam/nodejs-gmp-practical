@@ -17,4 +17,5 @@ new APIStack(app, 'MentorBookingAPI', {
     notificationsQueue: notificationsStack.notificationsQueue,
     mentorBookingTemplate: notificationsStack.mentorBookingTemplate,
     studentBookingTemplate: notificationsStack.studentBookingTemplate,
+    bookingsBucket: storageStack.bookingsBucket,
 });

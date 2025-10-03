@@ -43,6 +43,10 @@ jobs:
         working-directory: ./assets/lambda/NotificationsHandler
         run: |
           npm ci
+      - name: Install ImportHandler dependencies
+        working-directory: ./assets/lambda/ImportHandler
+        run: |
+          npm ci
 
       - name: Build all assets (Lambda Functions)
         run: npm run build:assets:all

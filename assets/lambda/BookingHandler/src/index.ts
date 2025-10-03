@@ -17,10 +17,11 @@ export async function handler(
     if (
         !process.env.MENTORS_TABLE ||
         !process.env.TIME_SLOTS_TABLE ||
-        !process.env.BOOKINGS_TABLE
+        !process.env.BOOKINGS_TABLE ||
+        !process.env.BOOKINGS_BUCKET
     ) {
         throw new Error(
-            'Missing required environment variables: MENTORS_TABLE, TIME_SLOTS_TABLE, BOOKINGS_TABLE'
+            'Missing required environment variables: MENTORS_TABLE, TIME_SLOTS_TABLE, BOOKINGS_TABLE, BOOKINGS_BUCKET'
         );
     }
 
@@ -78,6 +79,17 @@ export async function handler(
                 ({ body, statusCode } = await controller.delete(
                     event.pathParameters.bookingId,
                     event.requestContext.authorizer!.claims['email']
+                ));
+                break;
+            }
+            case event.path === '/import/mentors' &&
+                event.httpMethod === 'POST': {
+                const controller =
+                    diContainer.resolve<IMentorController>('IMentorController');
+                ({ body, statusCode } = await controller.bulkImport(
+                    event.body,
+                    event.headers,
+                    event.isBase64Encoded
                 ));
                 break;
             }

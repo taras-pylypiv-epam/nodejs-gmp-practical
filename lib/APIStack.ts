@@ -5,6 +5,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as s3 from 'aws-cdk-lib/aws-s3';
 
 import { buildLambdaPath } from '../utils/path';
 
@@ -15,6 +16,7 @@ interface APIStackProps extends cdk.StackProps {
     readonly notificationsQueue: sqs.IQueue;
     readonly mentorBookingTemplate: string;
     readonly studentBookingTemplate: string;
+    readonly bookingsBucket: s3.IBucket;
 }
 
 export class APIStack extends cdk.Stack {
@@ -45,6 +47,30 @@ export class APIStack extends cdk.Stack {
             authorizationType: apigw.AuthorizationType.COGNITO,
         };
 
+        const adminPool = new cognito.UserPool(this, 'AdminPool', {
+            userPoolName: 'AdminPool',
+            selfSignUpEnabled: true,
+            signInAliases: { email: true },
+            autoVerify: { email: true },
+        });
+        new cognito.UserPoolClient(this, 'AdminPoolClient', {
+            userPool: adminPool,
+            generateSecret: false,
+            authFlows: { userPassword: true },
+        });
+        const adminAuthorizer = new apigw.CognitoUserPoolsAuthorizer(
+            this,
+            'AdminAuthorizer',
+            {
+                cognitoUserPools: [adminPool],
+                authorizerName: 'AdminAuthorizer',
+            }
+        );
+        const adminAuthorizerOption = {
+            authorizer: adminAuthorizer,
+            authorizationType: apigw.AuthorizationType.COGNITO,
+        };
+
         const bookingHandler = new lambda.Function(this, 'BookingHandler', {
             runtime: lambda.Runtime.NODEJS_22_X,
             architecture: lambda.Architecture.ARM_64,
@@ -58,12 +84,14 @@ export class APIStack extends cdk.Stack {
                 NOTIFICATIONS_QUEUE: props.notificationsQueue.queueUrl,
                 MENTOR_BOOKING_TEMPLATE: props.mentorBookingTemplate,
                 STUDENT_BOOKING_TEMPLATE: props.studentBookingTemplate,
+                BOOKINGS_BUCKET: props.bookingsBucket.bucketName,
             },
         });
 
         const bookingApi = new apigw.RestApi(this, 'BookingAPI', {
             restApiName: 'BookingAPI',
             description: 'Serves lambda function for Booking API',
+            binaryMediaTypes: ['multipart/form-data', 'text/csv'],
         });
         const bookingIntegration = new apigw.LambdaIntegration(
             bookingHandler,
@@ -76,6 +104,8 @@ export class APIStack extends cdk.Stack {
             .addResource('timeslots');
         const bookingsResource = bookingApi.root.addResource('bookings');
         const bookingResource = bookingsResource.addResource('{bookingId}');
+        const importResource = bookingApi.root.addResource('import');
+        const importMentorsResource = importResource.addResource('mentors');
 
         // GET /mentors
         mentorsResource.addMethod(
@@ -107,11 +137,19 @@ export class APIStack extends cdk.Stack {
             bookingIntegration,
             studentAuthorizerOption
         );
+        // POST /import/mentors
+        importMentorsResource.addMethod(
+            'POST',
+            bookingIntegration,
+            adminAuthorizerOption
+        );
 
         props.mentorsTable.grantReadWriteData(bookingHandler);
         props.timeSlotsTable.grantReadWriteData(bookingHandler);
         props.bookingsTable.grantReadWriteData(bookingHandler);
 
         props.notificationsQueue.grantSendMessages(bookingHandler);
+
+        props.bookingsBucket.grantWrite(bookingHandler);
     }
 }
